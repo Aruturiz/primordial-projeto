@@ -1,0 +1,174 @@
+{% extends 'base/base.html' %}
+{% block title %}{{ projeto.nome }} - Primordial{% endblock %}
+{% block page_title %}{{ projeto.nome }}{% endblock %}
+
+{% block content %}
+
+{% if messages %}
+    {% for message in messages %}
+    <div class="bg-green-100 text-green-700 px-4 py-3 rounded-lg mb-4">{{ message }}</div>
+    {% endfor %}
+{% endif %}
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+    <!-- Dados do projeto -->
+    <div class="lg:col-span-1 space-y-6">
+        <div class="bg-white rounded-xl shadow p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-800">Detalhes</h3>
+                <a href="{% url 'editar_projeto' projeto.pk %}" class="text-yellow-500 hover:text-yellow-700 text-sm font-medium">Editar</a>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <p class="text-xs text-gray-400 uppercase">Cliente</p>
+                    <p class="text-gray-800 font-medium">{{ projeto.cliente|default:"—" }}</p>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-400 uppercase">Status</p>
+                    <span class="px-3 py-1 rounded-full text-xs font-medium
+                        {% if projeto.status == 'em_andamento' %}bg-blue-100 text-blue-700
+                        {% elif projeto.status == 'concluido' %}bg-green-100 text-green-700
+                        {% elif projeto.status == 'pausado' %}bg-yellow-100 text-yellow-700
+                        {% else %}bg-gray-100 text-gray-700{% endif %}">
+                        {{ projeto.get_status_display }}
+                    </span>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-400 uppercase">Responsável</p>
+                    <p class="text-gray-800">{{ projeto.responsavel|default:"—" }}</p>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-400 uppercase">Início</p>
+                    <p class="text-gray-800">{{ projeto.data_inicio|date:"d/m/Y" }}</p>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-400 uppercase">Prazo</p>
+                    <p class="text-gray-800">{{ projeto.data_prazo|date:"d/m/Y"|default:"—" }}</p>
+                </div>
+                {% if projeto.descricao %}
+                <div>
+                    <p class="text-xs text-gray-400 uppercase">Descrição</p>
+                    <p class="text-gray-800 text-sm">{{ projeto.descricao }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Resumo tarefas -->
+        <div class="bg-white rounded-xl shadow p-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Progresso</h3>
+            <div class="space-y-2">
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-600">Pendentes</span>
+                    <span class="font-medium text-yellow-600">{{ tarefas|length }}</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-600">Concluídas</span>
+                    <span class="font-medium text-green-600">
+                        {% for t in tarefas %}{% if t.status == 'concluida' %}1{% endif %}{% endfor %}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tarefas -->
+    <div class="lg:col-span-2 space-y-6">
+
+        <!-- Nova tarefa -->
+        <div class="bg-white rounded-xl shadow p-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Nova Tarefa</h3>
+            <form method="post" action="{% url 'nova_tarefa' projeto.pk %}">
+                {% csrf_token %}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div class="md:col-span-2">
+                        <input type="text" name="titulo" required placeholder="Título da tarefa"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400">
+                    </div>
+                    <div>
+                        <select name="responsavel"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400">
+                            <option value="">Responsável</option>
+                            {% for user in responsaveis %}
+                            <option value="{{ user.pk }}">{{ user.username }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <select name="prioridade"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400">
+                            <option value="baixa">Prioridade Baixa</option>
+                            <option value="media" selected>Prioridade Média</option>
+                            <option value="alta">Prioridade Alta</option>
+                        </select>
+                    </div>
+                    <div>
+                        <input type="date" name="prazo"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400">
+                    </div>
+                    <div>
+                        <input type="text" name="descricao" placeholder="Descrição (opcional)"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400">
+                    </div>
+                </div>
+                <button type="submit" class="bg-yellow-400 text-gray-900 font-bold px-6 py-3 rounded-lg hover:bg-yellow-500 transition">
+                    + Adicionar Tarefa
+                </button>
+            </form>
+        </div>
+
+        <!-- Lista de tarefas por status -->
+        {% for status_key, status_label in tarefas.model.STATUS_CHOICES %}
+        <div class="bg-white rounded-xl shadow p-6">
+            <h3 class="font-semibold text-gray-800 mb-4">{{ status_label }}</h3>
+            <div class="space-y-3">
+                {% for tarefa in tarefas %}
+                {% if tarefa.status == status_key %}
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div class="flex items-center gap-3">
+                        <span class="w-2 h-2 rounded-full
+                            {% if tarefa.prioridade == 'alta' %}bg-red-500
+                            {% elif tarefa.prioridade == 'media' %}bg-yellow-500
+                            {% else %}bg-green-500{% endif %}">
+                        </span>
+                        <div>
+                            <p class="font-medium text-gray-800 text-sm">{{ tarefa.titulo }}</p>
+                            <div class="flex gap-3 mt-1">
+                                {% if tarefa.responsavel %}
+                                <p class="text-xs text-gray-500">{{ tarefa.responsavel.username }}</p>
+                                {% endif %}
+                                {% if tarefa.prazo %}
+                                <p class="text-xs text-gray-400">{{ tarefa.prazo|date:"d/m/Y" }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <form method="post" action="{% url 'atualizar_tarefa' tarefa.pk %}">
+                            {% csrf_token %}
+                            <select name="status" onchange="this.form.submit()"
+                                class="text-xs border border-gray-300 rounded-lg px-2 py-1 focus:outline-none">
+                                <option value="pendente" {% if tarefa.status == 'pendente' %}selected{% endif %}>Pendente</option>
+                                <option value="em_andamento" {% if tarefa.status == 'em_andamento' %}selected{% endif %}>Em Andamento</option>
+                                <option value="concluida" {% if tarefa.status == 'concluida' %}selected{% endif %}>Concluída</option>
+                            </select>
+                        </form>
+                        <form method="post" action="{% url 'deletar_tarefa' tarefa.pk %}">
+                            {% csrf_token %}
+                            <button type="submit" class="text-red-400 hover:text-red-600 text-xs" onclick="return confirm('Remover tarefa?')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,159 @@
+{% extends 'base/base.html' %}
+{% block title %}Chat - {{ estrategia.titulo }}{% endblock %}
+{% block page_title %}{{ estrategia.titulo }}{% endblock %}
+
+{% block content %}
+
+<div class="flex flex-col h-full gap-4">
+
+    <!-- Info da estratégia -->
+    <div class="bg-white rounded-xl shadow px-6 py-4 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center">
+                <i class="fas fa-robot text-yellow-500"></i>
+            </div>
+            <div>
+                <p class="font-semibold text-gray-800">Primo — IA Estrategista</p>
+                <p class="text-xs text-gray-500">{{ estrategia.get_tipo_display }} {% if estrategia.cliente %}— {{ estrategia.cliente.nome }}{% endif %}</p>
+            </div>
+        </div>
+        <div class="flex gap-3">
+            {% if estrategia.status == 'finalizada' %}
+            <a href="{% url 'detalhe_estrategia' estrategia.pk %}" class="bg-green-500 text-white text-sm font-bold px-4 py-2 rounded-lg hover:bg-green-600 transition">
+                <i class="fas fa-file-alt mr-1"></i> Ver Documento
+            </a>
+            {% else %}
+            <a href="{% url 'gerar_documento' estrategia.pk %}" class="bg-gray-800 text-white text-sm font-bold px-4 py-2 rounded-lg hover:bg-gray-700 transition"
+                onclick="return confirm('Gerar documento final com base na conversa?')">
+                <i class="fas fa-magic mr-1"></i> Gerar Documento
+            </a>
+            {% endif %}
+            <a href="{% url 'lista_estrategias' %}" class="bg-gray-100 text-gray-700 text-sm font-medium px-4 py-2 rounded-lg hover:bg-gray-200 transition">
+                ← Voltar
+            </a>
+        </div>
+    </div>
+
+    <!-- Chat -->
+    <div class="bg-white rounded-xl shadow flex flex-col" style="height: 600px;">
+
+        <!-- Mensagens -->
+        <div id="chat-messages" class="flex-1 overflow-y-auto p-6 space-y-4">
+            {% for msg in mensagens %}
+            <div class="flex {% if msg.role == 'user' %}justify-end{% else %}justify-start{% endif %}">
+                {% if msg.role == 'assistant' %}
+                <div class="w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center text-gray-900 font-bold text-xs mr-3 flex-shrink-0 mt-1">
+                    IA
+                </div>
+                {% endif %}
+                <div class="max-w-2xl px-4 py-3 rounded-xl text-sm
+                    {% if msg.role == 'user' %}bg-yellow-400 text-gray-900
+                    {% else %}bg-gray-100 text-gray-800{% endif %}">
+                    {{ msg.conteudo|linebreaksbr }}
+                </div>
+                {% if msg.role == 'user' %}
+                <div class="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center text-white font-bold text-xs ml-3 flex-shrink-0 mt-1">
+                    {{ request.user.username|first|upper }}
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+
+            <!-- Loading -->
+            <div id="loading" class="hidden flex justify-start">
+                <div class="w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center text-gray-900 font-bold text-xs mr-3 flex-shrink-0">
+                    IA
+                </div>
+                <div class="bg-gray-100 px-4 py-3 rounded-xl">
+                    <div class="flex gap-1">
+                        <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                        <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+                        <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.4s"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Input -->
+        <div class="border-t border-gray-100 p-4">
+            <div class="flex gap-3">
+                <input type="text" id="mensagem-input" placeholder="Digite sua mensagem..."
+                    class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400">
+                <button id="enviar-btn" onclick="enviarMensagem()"
+                    class="bg-yellow-400 text-gray-900 font-bold px-6 py-3 rounded-lg hover:bg-yellow-500 transition">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+            <p class="text-xs text-gray-400 mt-2">Pressione Enter para enviar</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    const chatMessages = document.getElementById('chat-messages');
+    const input = document.getElementById('mensagem-input');
+    const loading = document.getElementById('loading');
+
+    // Scroll para o final
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+
+    // Enter para enviar
+    input.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') enviarMensagem();
+    });
+
+    function enviarMensagem() {
+        const mensagem = input.value.trim();
+        if (!mensagem) return;
+
+        // Adiciona mensagem do usuário na tela
+        const userDiv = document.createElement('div');
+        userDiv.className = 'flex justify-end';
+        userDiv.innerHTML = `
+            <div class="max-w-2xl px-4 py-3 rounded-xl text-sm bg-yellow-400 text-gray-900">
+                ${mensagem.replace(/\n/g, '<br>')}
+            </div>
+            <div class="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center text-white font-bold text-xs ml-3 flex-shrink-0 mt-1">
+                {{ request.user.username|first|upper }}
+            </div>
+        `;
+        chatMessages.appendChild(userDiv);
+        input.value = '';
+
+        // Mostra loading
+        loading.classList.remove('hidden');
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+
+        // Envia para o servidor
+        fetch('{% url "enviar_mensagem" estrategia.pk %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({ mensagem: mensagem })
+        })
+        .then(r => r.json())
+        .then(data => {
+            loading.classList.add('hidden');
+            const iaDiv = document.createElement('div');
+            iaDiv.className = 'flex justify-start';
+            iaDiv.innerHTML = `
+                <div class="w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center text-gray-900 font-bold text-xs mr-3 flex-shrink-0 mt-1">
+                    IA
+                </div>
+                <div class="max-w-2xl px-4 py-3 rounded-xl text-sm bg-gray-100 text-gray-800">
+                    ${data.resposta.replace(/\n/g, '<br>')}
+                </div>
+            `;
+            chatMessages.appendChild(iaDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        })
+        .catch(err => {
+            loading.classList.add('hidden');
+            alert('Erro ao enviar mensagem. Tente novamente.');
+        });
+    }
+</script>
+
+{% endblock %}

@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'conteudo',
     'metricas',
     'financeiro',
+    'estrategia',
 ]
 
 MIDDLEWARE = [
@@ -130,3 +131,4 @@ STATICFILES_DIRS = [BASE_DIR / 'static']
 META_APP_ID = os.getenv('META_APP_ID')
 META_APP_SECRET = os.getenv('META_APP_SECRET')
 META_REDIRECT_URI = os.getenv('META_REDIRECT_URI')
+OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
