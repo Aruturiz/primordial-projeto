@@ -1,0 +1,456 @@
+{% extends 'base/base.html' %}
+{% block title %}Métricas {{ cliente.nome }} - Primordial{% endblock %}
+{% block page_title %}Métricas — {{ cliente.nome }}{% endblock %}
+
+{% block content %}
+
+{% if messages %}
+    {% for message in messages %}
+    <div class="{% if 'Erro' in message %}bg-red-100 text-red-700 border border-red-200{% else %}bg-green-100 text-green-700 border border-green-200{% endif %} px-4 py-3 rounded-2xl mb-4 shadow-sm">
+        {{ message }}
+    </div>
+    {% endfor %}
+{% endif %}
+
+<div class="space-y-8">
+    <!-- Header -->
+    <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-purple-900 to-pink-700 text-white shadow-2xl">
+        <div class="absolute inset-0 opacity-20">
+            <div class="absolute -top-10 -right-10 w-56 h-56 bg-white/20 rounded-full blur-3xl"></div>
+            <div class="absolute -bottom-16 -left-10 w-64 h-64 bg-pink-400/20 rounded-full blur-3xl"></div>
+        </div>
+
+        <div class="relative z-10 p-6 md:p-8 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+            <div class="flex items-center gap-4">
+                <div class="w-16 h-16 rounded-2xl bg-white/15 backdrop-blur-md border border-white/20 flex items-center justify-center text-2xl font-bold shadow-lg">
+                    {{ cliente.nome|first|upper }}
+                </div>
+                <div>
+                    <p class="text-white/70 text-sm uppercase tracking-[0.25em]">Dashboard de Métricas</p>
+                    <h2 class="text-2xl md:text-3xl font-bold leading-tight">{{ cliente.nome }}</h2>
+                    {% if token %}
+                        <p class="text-white/80 mt-1">@{{ token.username }}</p>
+                    {% else %}
+                        <p class="text-white/70 mt-1">Conta sem username vinculado</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="flex flex-wrap gap-3">
+                <a href="{% url 'atualizar_metricas' cliente.pk %}"
+                   class="inline-flex items-center justify-center bg-white text-slate-900 font-semibold px-5 py-3 rounded-2xl hover:bg-slate-100 transition shadow-lg">
+                    <i class="fas fa-sync mr-2"></i> Atualizar métricas
+                </a>
+                <a href="{% url 'dashboard_metricas' %}"
+                   class="inline-flex items-center justify-center bg-white/10 backdrop-blur-md border border-white/20 text-white font-medium px-5 py-3 rounded-2xl hover:bg-white/15 transition">
+                    ← Voltar
+                </a>
+            </div>
+        </div>
+    </div>
+
+    {% if metricas %}
+        {% with m=metricas.first %}
+        <!-- KPIs -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
+            <div class="rounded-3xl bg-white border border-slate-100 shadow-sm p-6 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-24 h-24 bg-sky-100 rounded-full blur-2xl opacity-70"></div>
+                <div class="relative">
+                    <div class="w-12 h-12 rounded-2xl bg-sky-100 text-sky-600 flex items-center justify-center mb-4">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <p class="text-sm text-slate-500">Seguidores</p>
+                    <h3 class="text-3xl font-bold text-slate-900 mt-1">{{ m.seguidores }}</h3>
+                    <p class="text-xs text-slate-400 mt-2">Base atual da conta</p>
+                </div>
+            </div>
+
+            <div class="rounded-3xl bg-white border border-slate-100 shadow-sm p-6 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-24 h-24 bg-violet-100 rounded-full blur-2xl opacity-70"></div>
+                <div class="relative">
+                    <div class="w-12 h-12 rounded-2xl bg-violet-100 text-violet-600 flex items-center justify-center mb-4">
+                        <i class="fas fa-image"></i>
+                    </div>
+                    <p class="text-sm text-slate-500">Posts</p>
+                    <h3 class="text-3xl font-bold text-slate-900 mt-1">{{ m.posts_count }}</h3>
+                    <p class="text-xs text-slate-400 mt-2">Conteúdos publicados</p>
+                </div>
+            </div>
+
+            <div class="rounded-3xl bg-white border border-slate-100 shadow-sm p-6 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-24 h-24 bg-pink-100 rounded-full blur-2xl opacity-70"></div>
+                <div class="relative">
+                    <div class="w-12 h-12 rounded-2xl bg-pink-100 text-pink-600 flex items-center justify-center mb-4">
+                        <i class="fas fa-bullseye"></i>
+                    </div>
+                    <p class="text-sm text-slate-500">Alcance 7 dias</p>
+                    <h3 class="text-3xl font-bold text-slate-900 mt-1">{{ m.alcance_7d }}</h3>
+                    <p class="text-xs text-slate-400 mt-2">Pessoas alcançadas recentemente</p>
+                </div>
+            </div>
+
+            <div class="rounded-3xl bg-white border border-slate-100 shadow-sm p-6 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-24 h-24 bg-amber-100 rounded-full blur-2xl opacity-70"></div>
+                <div class="relative">
+                    <div class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center mb-4">
+                        <i class="fas fa-eye"></i>
+                    </div>
+                    <p class="text-sm text-slate-500">Impressões 7 dias</p>
+                    <h3 class="text-3xl font-bold text-slate-900 mt-1">{{ m.impressoes_7d }}</h3>
+                    <p class="text-xs text-slate-400 mt-2">Total de exibições no período</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Insights rápidos -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+            <div class="rounded-3xl bg-white border border-slate-100 shadow-sm p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-base font-semibold text-slate-800">Resumo atual</h3>
+                    <span class="text-xs px-3 py-1 rounded-full bg-emerald-50 text-emerald-600 font-medium">Última coleta</span>
+                </div>
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <span class="text-slate-500 text-sm">Data</span>
+                        <span class="font-medium text-slate-800">{{ m.data_coleta|date:"d/m/Y H:i" }}</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-slate-500 text-sm">Conta</span>
+                        <span class="font-medium text-slate-800">{% if token %}@{{ token.username }}{% else %}—{% endif %}</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-slate-500 text-sm">Status</span>
+                        <span class="font-medium text-emerald-600">Dados carregados</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="rounded-3xl bg-gradient-to-br from-pink-500 to-rose-500 text-white shadow-lg p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-base font-semibold">Alcance x Impressões</h3>
+                    <i class="fas fa-chart-line text-white/80"></i>
+                </div>
+                <p class="text-sm text-white/80">Comparação da força de distribuição do perfil na última coleta.</p>
+                <div class="mt-6 flex items-end gap-3">
+                    <div>
+                        <p class="text-xs text-white/70">Alcance</p>
+                        <p class="text-2xl font-bold">{{ m.alcance_7d }}</p>
+                    </div>
+                    <div class="text-white/50 text-xl pb-1">vs</div>
+                    <div>
+                        <p class="text-xs text-white/70">Impressões</p>
+                        <p class="text-2xl font-bold">{{ m.impressoes_7d }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="rounded-3xl bg-gradient-to-br from-slate-900 to-slate-700 text-white shadow-lg p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-base font-semibold">Publicação acumulada</h3>
+                    <i class="fas fa-layer-group text-white/80"></i>
+                </div>
+                <p class="text-sm text-white/70">Volume de posts atualmente disponível na conta analisada.</p>
+                <div class="mt-6">
+                    <p class="text-4xl font-bold">{{ m.posts_count }}</p>
+                    <p class="text-sm text-white/60 mt-2">posts cadastrados na última leitura</p>
+                </div>
+            </div>
+        </div>
+        {% endwith %}
+
+        <!-- Gráficos -->
+        <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+            <div class="rounded-3xl bg-white border border-slate-100 shadow-sm p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h3 class="text-lg font-semibold text-slate-800">Evolução de seguidores</h3>
+                        <p class="text-sm text-slate-500">Histórico por coleta</p>
+                    </div>
+                    <div class="w-11 h-11 rounded-2xl bg-sky-50 text-sky-600 flex items-center justify-center">
+                        <i class="fas fa-users"></i>
+                    </div>
+                </div>
+                <div class="h-[320px]">
+                    <canvas id="followersChart"></canvas>
+                </div>
+            </div>
+
+            <div class="rounded-3xl bg-white border border-slate-100 shadow-sm p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h3 class="text-lg font-semibold text-slate-800">Alcance x Impressões</h3>
+                        <p class="text-sm text-slate-500">Comparativo por coleta</p>
+                    </div>
+                    <div class="w-11 h-11 rounded-2xl bg-pink-50 text-pink-600 flex items-center justify-center">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                </div>
+                <div class="h-[320px]">
+                    <canvas id="reachImpressionsChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="rounded-3xl bg-white border border-slate-100 shadow-sm p-6">
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <h3 class="text-lg font-semibold text-slate-800">Panorama geral das métricas</h3>
+                    <p class="text-sm text-slate-500">Leitura consolidada do histórico</p>
+                </div>
+                <div class="w-11 h-11 rounded-2xl bg-violet-50 text-violet-600 flex items-center justify-center">
+                    <i class="fas fa-chart-area"></i>
+                </div>
+            </div>
+            <div class="h-[340px]">
+                <canvas id="overviewChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Tabela -->
+        <div class="rounded-3xl bg-white border border-slate-100 shadow-sm overflow-hidden">
+            <div class="px-6 py-5 border-b border-slate-100 flex items-center justify-between">
+                <div>
+                    <h3 class="text-lg font-semibold text-slate-800">Histórico de coletas</h3>
+                    <p class="text-sm text-slate-500">Dados completos das leituras realizadas</p>
+                </div>
+                <span class="text-xs font-medium px-3 py-1 rounded-full bg-slate-100 text-slate-600">
+                    {{ metricas|length }} registro{{ metricas|length|pluralize }}
+                </span>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead class="bg-slate-50 text-slate-500 uppercase text-[11px] tracking-wider">
+                        <tr>
+                            <th class="px-6 py-4 text-left">Data</th>
+                            <th class="px-6 py-4 text-left">Seguidores</th>
+                            <th class="px-6 py-4 text-left">Alcance 7d</th>
+                            <th class="px-6 py-4 text-left">Impressões 7d</th>
+                            <th class="px-6 py-4 text-left">Posts</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        {% for m in metricas %}
+                        <tr class="hover:bg-slate-50 transition">
+                            <td class="px-6 py-4 text-slate-600 whitespace-nowrap">{{ m.data_coleta|date:"d/m/Y H:i" }}</td>
+                            <td class="px-6 py-4 font-semibold text-slate-800">{{ m.seguidores }}</td>
+                            <td class="px-6 py-4">
+                                <span class="inline-flex items-center px-3 py-1 rounded-full bg-pink-50 text-pink-600 font-medium">
+                                    {{ m.alcance_7d }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="inline-flex items-center px-3 py-1 rounded-full bg-violet-50 text-violet-600 font-medium">
+                                    {{ m.impressoes_7d }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 text-slate-700">{{ m.posts_count }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    {% else %}
+        <div class="rounded-3xl bg-white border border-slate-100 shadow-sm p-12 text-center">
+            <div class="w-20 h-20 mx-auto rounded-full bg-slate-100 text-slate-500 flex items-center justify-center text-2xl mb-5">
+                <i class="fas fa-chart-pie"></i>
+            </div>
+            <h3 class="text-xl font-semibold text-slate-800 mb-2">Nenhuma métrica coletada ainda</h3>
+            <p class="text-slate-500 mb-6">Faça a primeira coleta para começar a visualizar gráficos e histórico do cliente.</p>
+            <a href="{% url 'atualizar_metricas' cliente.pk %}"
+               class="inline-flex items-center bg-pink-500 text-white font-semibold px-6 py-3 rounded-2xl hover:bg-pink-600 transition shadow-lg">
+                <i class="fas fa-sync mr-2"></i> Coletar agora
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+{% if metricas %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const labels = [
+        {% for m in metricas reversed %}
+            "{{ m.data_coleta|date:'d/m H:i' }}"{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ];
+
+    const seguidoresData = [
+        {% for m in metricas reversed %}
+            {{ m.seguidores|default:0 }}{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ];
+
+    const alcanceData = [
+        {% for m in metricas reversed %}
+            {{ m.alcance_7d|default:0 }}{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ];
+
+    const impressoesData = [
+        {% for m in metricas reversed %}
+            {{ m.impressoes_7d|default:0 }}{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ];
+
+    const postsData = [
+        {% for m in metricas reversed %}
+            {{ m.posts_count|default:0 }}{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ];
+
+    const defaultGridColor = 'rgba(148, 163, 184, 0.15)';
+    const defaultTickColor = '#64748b';
+
+    new Chart(document.getElementById('followersChart'), {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Seguidores',
+                data: seguidoresData,
+                borderColor: '#0ea5e9',
+                backgroundColor: 'rgba(14, 165, 233, 0.12)',
+                fill: true,
+                tension: 0.35,
+                pointRadius: 4,
+                pointHoverRadius: 6,
+                pointBackgroundColor: '#0ea5e9'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: true
+                }
+            },
+            scales: {
+                x: {
+                    grid: { color: defaultGridColor },
+                    ticks: { color: defaultTickColor }
+                },
+                y: {
+                    beginAtZero: true,
+                    grid: { color: defaultGridColor },
+                    ticks: { color: defaultTickColor }
+                }
+            }
+        }
+    });
+
+    new Chart(document.getElementById('reachImpressionsChart'), {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Alcance 7d',
+                    data: alcanceData,
+                    backgroundColor: 'rgba(236, 72, 153, 0.75)',
+                    borderRadius: 10
+                },
+                {
+                    label: 'Impressões 7d',
+                    data: impressoesData,
+                    backgroundColor: 'rgba(139, 92, 246, 0.75)',
+                    borderRadius: 10
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: true
+                }
+            },
+            scales: {
+                x: {
+                    grid: { color: defaultGridColor },
+                    ticks: { color: defaultTickColor }
+                },
+                y: {
+                    beginAtZero: true,
+                    grid: { color: defaultGridColor },
+                    ticks: { color: defaultTickColor }
+                }
+            }
+        }
+    });
+
+    new Chart(document.getElementById('overviewChart'), {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Seguidores',
+                    data: seguidoresData,
+                    borderColor: '#0f172a',
+                    backgroundColor: 'rgba(15, 23, 42, 0.06)',
+                    tension: 0.35,
+                    fill: false,
+                    pointRadius: 3
+                },
+                {
+                    label: 'Alcance 7d',
+                    data: alcanceData,
+                    borderColor: '#ec4899',
+                    backgroundColor: 'rgba(236, 72, 153, 0.10)',
+                    tension: 0.35,
+                    fill: false,
+                    pointRadius: 3
+                },
+                {
+                    label: 'Impressões 7d',
+                    data: impressoesData,
+                    borderColor: '#8b5cf6',
+                    backgroundColor: 'rgba(139, 92, 246, 0.10)',
+                    tension: 0.35,
+                    fill: false,
+                    pointRadius: 3
+                },
+                {
+                    label: 'Posts',
+                    data: postsData,
+                    borderColor: '#f59e0b',
+                    backgroundColor: 'rgba(245, 158, 11, 0.10)',
+                    tension: 0.35,
+                    fill: false,
+                    pointRadius: 3
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                mode: 'index',
+                intersect: false
+            },
+            plugins: {
+                legend: {
+                    display: true
+                }
+            },
+            scales: {
+                x: {
+                    grid: { color: defaultGridColor },
+                    ticks: { color: defaultTickColor }
+                },
+                y: {
+                    beginAtZero: true,
+                    grid: { color: defaultGridColor },
+                    ticks: { color: defaultTickColor }
+                }
+            }
+        }
+    });
+</script>
+{% endif %}
+
+{% endblock %}

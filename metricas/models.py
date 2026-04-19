@@ -34,3 +34,28 @@ class Metrica(models.Model):
 
     def __str__(self):
         return f"{self.campanha.nome} - {self.data.strftime('%d/%m/%Y')}"
+
+class InstagramToken(models.Model):
+    cliente = models.OneToOneField(Cliente, on_delete=models.CASCADE, related_name='instagram_token')
+    access_token = models.TextField()
+    instagram_account_id = models.CharField(max_length=100)
+    username = models.CharField(max_length=100, blank=True)
+    token_criado = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Token Instagram - {self.cliente.nome}"
+
+class InstagramMetrica(models.Model):
+    cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE, related_name='instagram_metricas')
+    data_coleta = models.DateTimeField(auto_now_add=True)
+    seguidores = models.IntegerField(default=0)
+    alcance_7d = models.IntegerField(default=0)
+    impressoes_7d = models.IntegerField(default=0)
+    engajamento_7d = models.IntegerField(default=0)
+    posts_count = models.IntegerField(default=0)
+
+    class Meta:
+        ordering = ['-data_coleta']
+
+    def __str__(self):
+        return f"{self.cliente.nome} - {self.data_coleta.strftime('%d/%m/%Y')}"

@@ -1,0 +1,71 @@
+{% extends 'base/base.html' %}
+{% block title %}Conectar Instagram - Primordial{% endblock %}
+{% block page_title %}Conectar Instagram{% endblock %}
+
+{% block content %}
+
+{% if messages %}
+    {% for message in messages %}
+    <div class="{% if 'Erro' in message %}bg-red-100 text-red-700{% else %}bg-green-100 text-green-700{% endif %} px-4 py-3 rounded-lg mb-4">
+        {{ message }}
+    </div>
+    {% endfor %}
+{% endif %}
+
+<div class="max-w-2xl mx-auto">
+    <div class="bg-white rounded-xl shadow p-8 mb-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">Como conectar?</h3>
+        <div class="space-y-3 text-sm text-gray-600 mb-6">
+            <div class="flex items-start gap-3">
+                <span class="w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center text-gray-900 font-bold text-xs flex-shrink-0">1</span>
+                <p>Acesse <a href="https://developers.facebook.com/tools/explorer" target="_blank" class="text-yellow-500 hover:underline">Graph API Explorer</a> e gere um Access Token com as permissões: <code class="bg-gray-100 px-1 rounded">instagram_basic</code> e <code class="bg-gray-100 px-1 rounded">instagram_manage_insights</code></p>
+            </div>
+            <div class="flex items-start gap-3">
+                <span class="w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center text-gray-900 font-bold text-xs flex-shrink-0">2</span>
+                <p>No Explorer, faça a requisição <code class="bg-gray-100 px-1 rounded">me/accounts</code> e copie o <strong>id</strong> da página do Facebook vinculada ao Instagram do cliente.</p>
+            </div>
+            <div class="flex items-start gap-3">
+                <span class="w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center text-gray-900 font-bold text-xs flex-shrink-0">3</span>
+                <p>Cole o Access Token e o Page ID abaixo e clique em Conectar.</p>
+            </div>
+        </div>
+
+        <form method="post" action="{% url 'salvar_token' %}">
+            {% csrf_token %}
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Cliente *</label>
+                    <select name="cliente" required
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400">
+                        <option value="">Selecione o cliente...</option>
+                        {% for cliente in clientes %}
+                        <option value="{{ cliente.pk }}">{{ cliente.nome }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Access Token *</label>
+                    <textarea name="access_token" rows="3" required
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                        placeholder="Cole o Access Token aqui..."></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Page ID (Facebook) *</label>
+                    <input type="text" name="page_id" required
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                        placeholder="Ex: 123456789">
+                </div>
+                <div class="flex gap-3">
+                    <button type="submit" class="bg-yellow-400 text-gray-900 font-bold px-6 py-3 rounded-lg hover:bg-yellow-500 transition">
+                        <i class="fab fa-instagram mr-2"></i>Conectar Instagram
+                    </button>
+                    <a href="{% url 'dashboard_metricas' %}" class="bg-gray-100 text-gray-700 font-medium px-6 py-3 rounded-lg hover:bg-gray-200 transition">
+                        Cancelar
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
