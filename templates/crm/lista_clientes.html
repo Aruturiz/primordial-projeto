@@ -1,0 +1,61 @@
+{% extends 'base/base.html' %}
+{% block title %}CRM - Primordial{% endblock %}
+{% block page_title %}CRM — Clientes{% endblock %}
+
+{% block content %}
+
+{% if messages %}
+    {% for message in messages %}
+    <div class="bg-green-100 text-green-700 px-4 py-3 rounded-lg mb-4">{{ message }}</div>
+    {% endfor %}
+{% endif %}
+
+<div class="flex justify-between items-center mb-6">
+    <p class="text-gray-500">{{ clientes.count }} cliente(s) cadastrado(s)</p>
+    <a href="{% url 'novo_cliente' %}" class="bg-yellow-400 text-gray-900 font-bold px-5 py-2 rounded-lg hover:bg-yellow-500 transition">
+        + Novo Cliente
+    </a>
+</div>
+
+<div class="bg-white rounded-xl shadow overflow-hidden">
+    <table class="w-full text-sm">
+        <thead class="bg-gray-50 text-gray-600 uppercase text-xs">
+            <tr>
+                <th class="px-6 py-4 text-left">Nome</th>
+                <th class="px-6 py-4 text-left">Empresa</th>
+                <th class="px-6 py-4 text-left">Email</th>
+                <th class="px-6 py-4 text-left">Telefone</th>
+                <th class="px-6 py-4 text-left">Status</th>
+                <th class="px-6 py-4 text-left">Ações</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+            {% for cliente in clientes %}
+            <tr class="hover:bg-gray-50 transition">
+                <td class="px-6 py-4 font-medium text-gray-800">{{ cliente.nome }}</td>
+                <td class="px-6 py-4 text-gray-600">{{ cliente.empresa }}</td>
+                <td class="px-6 py-4 text-gray-600">{{ cliente.email }}</td>
+                <td class="px-6 py-4 text-gray-600">{{ cliente.telefone }}</td>
+                <td class="px-6 py-4">
+                    <span class="px-3 py-1 rounded-full text-xs font-medium
+                        {% if cliente.status == 'ativo' %}bg-green-100 text-green-700
+                        {% elif cliente.status == 'lead' %}bg-yellow-100 text-yellow-700
+                        {% elif cliente.status == 'prospecto' %}bg-blue-100 text-blue-700
+                        {% else %}bg-gray-100 text-gray-700{% endif %}">
+                        {{ cliente.get_status_display }}
+                    </span>
+                </td>
+                <td class="px-6 py-4">
+                    <a href="{% url 'detalhe_cliente' cliente.pk %}" class="text-yellow-500 hover:text-yellow-700 font-medium">Ver</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" class="px-6 py-8 text-center text-gray-400">Nenhum cliente cadastrado ainda.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

@@ -1,0 +1,61 @@
+{% extends 'base/base.html' %}
+{% block title %}Editar Cliente - Primordial{% endblock %}
+{% block page_title %}Editar Cliente{% endblock %}
+
+{% block content %}
+
+<div class="max-w-2xl mx-auto bg-white rounded-xl shadow p-8">
+    <form method="post">
+        {% csrf_token %}
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Nome *</label>
+                <input type="text" name="nome" value="{{ cliente.nome }}" required
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Empresa</label>
+                <input type="text" name="empresa" value="{{ cliente.empresa }}"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Email *</label>
+                <input type="email" name="email" value="{{ cliente.email }}" required
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Telefone</label>
+                <input type="text" name="telefone" value="{{ cliente.telefone }}"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                <select name="status"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400">
+                    <option value="lead" {% if cliente.status == 'lead' %}selected{% endif %}>Lead</option>
+                    <option value="prospecto" {% if cliente.status == 'prospecto' %}selected{% endif %}>Prospecto</option>
+                    <option value="ativo" {% if cliente.status == 'ativo' %}selected{% endif %}>Ativo</option>
+                    <option value="inativo" {% if cliente.status == 'inativo' %}selected{% endif %}>Inativo</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="mb-6">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Observações</label>
+            <textarea name="observacoes" rows="4"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400">{{ cliente.observacoes }}</textarea>
+        </div>
+
+        <div class="flex gap-3">
+            <button type="submit" class="bg-yellow-400 text-gray-900 font-bold px-6 py-3 rounded-lg hover:bg-yellow-500 transition">
+                Salvar Alterações
+            </button>
+            <a href="{% url 'detalhe_cliente' cliente.pk %}" class="bg-gray-100 text-gray-700 font-medium px-6 py-3 rounded-lg hover:bg-gray-200 transition">
+                Cancelar
+            </a>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

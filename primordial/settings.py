@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'projetos',
     'conteudo',
     'metricas',
+    'financeiro',
 ]
 
 MIDDLEWARE = [

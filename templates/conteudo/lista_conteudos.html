@@ -1,0 +1,68 @@
+{% extends 'base/base.html' %}
+{% block title %}Conteúdo - Primordial{% endblock %}
+{% block page_title %}Planejamento de Conteúdo{% endblock %}
+
+{% block content %}
+
+{% if messages %}
+    {% for message in messages %}
+    <div class="bg-green-100 text-green-700 px-4 py-3 rounded-lg mb-4">{{ message }}</div>
+    {% endfor %}
+{% endif %}
+
+<div class="flex justify-between items-center mb-6">
+    <p class="text-gray-500">{{ conteudos.count }} conteúdo(s) cadastrado(s)</p>
+    <div class="flex gap-3">
+        <a href="{% url 'calendario' %}" class="bg-gray-800 text-white font-bold px-5 py-2 rounded-lg hover:bg-gray-700 transition">
+            <i class="fas fa-calendar mr-2"></i>Calendário
+        </a>
+        <a href="{% url 'novo_conteudo' %}" class="bg-yellow-400 text-gray-900 font-bold px-5 py-2 rounded-lg hover:bg-yellow-500 transition">
+            + Novo Conteúdo
+        </a>
+    </div>
+</div>
+
+<!-- Filtros por status -->
+<div class="flex gap-2 mb-6 flex-wrap">
+    {% for status, label in conteudos.model.STATUS_CHOICES %}
+    <span class="px-4 py-2 bg-white rounded-full text-sm shadow text-gray-600 cursor-pointer hover:bg-yellow-400 hover:text-gray-900 transition">
+        {{ label }}
+    </span>
+    {% endfor %}
+</div>
+
+<!-- Kanban por status -->
+<div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+
+    {% for status_key, status_label in conteudos.model.STATUS_CHOICES %}
+    <div class="bg-gray-50 rounded-xl p-4">
+        <h3 class="font-semibold text-gray-700 mb-3 text-sm uppercase tracking-wide">{{ status_label }}</h3>
+        <div class="space-y-3">
+            {% for c in conteudos %}
+                {% if c.status == status_key %}
+                <a href="{% url 'detalhe_conteudo' c.pk %}" class="block bg-white rounded-lg shadow p-3 hover:shadow-md transition">
+                    <p class="font-medium text-gray-800 text-sm mb-1">{{ c.titulo }}</p>
+                    <p class="text-xs text-gray-500 mb-2">{{ c.cliente.nome }}</p>
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs px-2 py-1 rounded-full
+                            {% if c.formato == 'reels' %}bg-pink-100 text-pink-700
+                            {% elif c.formato == 'post' %}bg-blue-100 text-blue-700
+                            {% elif c.formato == 'stories' %}bg-purple-100 text-purple-700
+                            {% elif c.formato == 'carrossel' %}bg-orange-100 text-orange-700
+                            {% else %}bg-gray-100 text-gray-700{% endif %}">
+                            {{ c.get_formato_display }}
+                        </span>
+                        {% if c.data_publicacao %}
+                        <span class="text-xs text-gray-400">{{ c.data_publicacao|date:"d/m" }}</span>
+                        {% endif %}
+                    </div>
+                </a>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+
+</div>
+
+{% endblock %}

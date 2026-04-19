@@ -7,4 +7,8 @@ urlpatterns = [
     path('accounts/login/', auth_views.LoginView.as_view(template_name='registration/login.html'), name='login'),
     path('accounts/logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('dashboard/', include('dashboard.urls')),
+    path('crm/', include('crm.urls')),
+    path('financeiro/', include('financeiro.urls')),
+    path('conteudo/', include('conteudo.urls')),
+
 ]

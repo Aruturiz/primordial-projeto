@@ -1,0 +1,130 @@
+{% extends 'base/base.html' %}
+{% block title %}Financeiro - Primordial{% endblock %}
+{% block page_title %}Financeiro{% endblock %}
+
+{% block content %}
+
+{% if messages %}
+    {% for message in messages %}
+    <div class="bg-red-100 text-red-700 px-4 py-3 rounded-lg mb-4">{{ message }}</div>
+    {% endfor %}
+{% endif %}
+
+<!-- Cards -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <div class="bg-white rounded-xl shadow p-6 flex items-center gap-4">
+        <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+            <i class="fas fa-arrow-up text-green-500 text-xl"></i>
+        </div>
+        <div>
+            <p class="text-gray-500 text-sm">Receitas do Mês</p>
+            <p class="text-2xl font-bold text-green-600">R$ {{ total_receitas }}</p>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow p-6 flex items-center gap-4">
+        <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+            <i class="fas fa-arrow-down text-red-500 text-xl"></i>
+        </div>
+        <div>
+            <p class="text-gray-500 text-sm">Despesas do Mês</p>
+            <p class="text-2xl font-bold text-red-600">R$ {{ total_despesas }}</p>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow p-6 flex items-center gap-4">
+        <div class="w-12 h-12 {% if saldo >= 0 %}bg-blue-100{% else %}bg-red-100{% endif %} rounded-full flex items-center justify-center">
+            <i class="fas fa-wallet {% if saldo >= 0 %}text-blue-500{% else %}text-red-500{% endif %} text-xl"></i>
+        </div>
+        <div>
+            <p class="text-gray-500 text-sm">Saldo do Mês</p>
+            <p class="text-2xl font-bold {% if saldo >= 0 %}text-blue-600{% else %}text-red-600{% endif %}">R$ {{ saldo }}</p>
+        </div>
+    </div>
+</div>
+
+<!-- Mensalidades e Transações -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+    <!-- Status Mensalidades -->
+    <div class="bg-white rounded-xl shadow p-6">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-gray-800">Mensalidades do Mês</h3>
+            <a href="{% url 'lista_mensalidades' %}" class="text-yellow-500 text-sm hover:text-yellow-700">Ver todas</a>
+        </div>
+
+        <div class="grid grid-cols-3 gap-4 mb-6">
+            <div class="text-center p-3 bg-green-50 rounded-lg">
+                <p class="text-2xl font-bold text-green-600">{{ mensalidades_pagas }}</p>
+                <p class="text-xs text-gray-500">Pagas</p>
+            </div>
+            <div class="text-center p-3 bg-yellow-50 rounded-lg">
+                <p class="text-2xl font-bold text-yellow-600">{{ mensalidades_pendentes }}</p>
+                <p class="text-xs text-gray-500">Pendentes</p>
+            </div>
+            <div class="text-center p-3 bg-red-50 rounded-lg">
+                <p class="text-2xl font-bold text-red-600">{{ mensalidades_atrasadas }}</p>
+                <p class="text-xs text-gray-500">Atrasadas</p>
+            </div>
+        </div>
+
+        <div class="space-y-3">
+            {% for m in mensalidades_mes %}
+            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div>
+                    <p class="font-medium text-gray-800 text-sm">{{ m.cliente.nome }}</p>
+                    <p class="text-xs text-gray-500">R$ {{ m.valor }}</p>
+                </div>
+                <span class="px-3 py-1 rounded-full text-xs font-medium
+                    {% if m.status == 'pago' %}bg-green-100 text-green-700
+                    {% elif m.status == 'atrasado' %}bg-red-100 text-red-700
+                    {% else %}bg-yellow-100 text-yellow-700{% endif %}">
+                    {{ m.get_status_display }}
+                </span>
+            </div>
+            {% empty %}
+            <p class="text-gray-400 text-sm">Nenhuma mensalidade este mês.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Transações Recentes -->
+    <div class="bg-white rounded-xl shadow p-6">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-gray-800">Transações Recentes</h3>
+            <a href="{% url 'lista_transacoes' %}" class="text-yellow-500 text-sm hover:text-yellow-700">Ver todas</a>
+        </div>
+        <div class="space-y-3">
+            {% for t in transacoes_recentes %}
+            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full flex items-center justify-center
+                        {% if t.tipo == 'receita' %}bg-green-100{% else %}bg-red-100{% endif %}">
+                        <i class="fas {% if t.tipo == 'receita' %}fa-arrow-up text-green-500{% else %}fa-arrow-down text-red-500{% endif %} text-xs"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-800">{{ t.descricao }}</p>
+                        <p class="text-xs text-gray-500">{{ t.data|date:"d/m/Y" }}</p>
+                    </div>
+                </div>
+                <p class="font-bold {% if t.tipo == 'receita' %}text-green-600{% else %}text-red-600{% endif %}">
+                    {% if t.tipo == 'receita' %}+{% else %}-{% endif %}R$ {{ t.valor }}
+                </p>
+            </div>
+            {% empty %}
+            <p class="text-gray-400 text-sm">Nenhuma transação registrada.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+</div>
+
+{% if request.user.is_superuser %}
+<div class="mt-6 text-right">
+    <a href="{% url 'gerenciar_acessos' %}" class="text-sm text-gray-500 hover:text-yellow-500">
+        <i class="fas fa-lock mr-1"></i> Gerenciar Acessos
+    </a>
+</div>
+{% endif %}
+
+{% endblock %}

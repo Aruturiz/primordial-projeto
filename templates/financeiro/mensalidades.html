@@ -1,0 +1,100 @@
+{% extends 'base/base.html' %}
+{% block title %}Mensalidades - Primordial{% endblock %}
+{% block page_title %}Mensalidades{% endblock %}
+
+{% block content %}
+
+{% if messages %}
+    {% for message in messages %}
+    <div class="bg-green-100 text-green-700 px-4 py-3 rounded-lg mb-4">{{ message }}</div>
+    {% endfor %}
+{% endif %}
+
+<!-- Nova Mensalidade -->
+<div class="bg-white rounded-xl shadow p-6 mb-6">
+    <h3 class="text-lg font-semibold text-gray-800 mb-4">Nova Mensalidade</h3>
+    <form method="post" action="{% url 'nova_mensalidade' %}">
+        {% csrf_token %}
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Cliente</label>
+                <select name="cliente" required
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400">
+                    <option value="">Selecione...</option>
+                    {% for cliente in clientes %}
+                    <option value="{{ cliente.pk }}">{{ cliente.nome }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Valor (R$)</label>
+                <input type="number" name="valor" step="0.01" required
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Mês de Referência</label>
+                <input type="date" name="mes_referencia" required
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400">
+            </div>
+            <div class="flex items-end">
+                <button type="submit" class="w-full bg-yellow-400 text-gray-900 font-bold px-6 py-3 rounded-lg hover:bg-yellow-500 transition">
+                    + Adicionar
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Lista -->
+<div class="bg-white rounded-xl shadow overflow-hidden">
+    <table class="w-full text-sm">
+        <thead class="bg-gray-50 text-gray-600 uppercase text-xs">
+            <tr>
+                <th class="px-6 py-4 text-left">Cliente</th>
+                <th class="px-6 py-4 text-left">Valor</th>
+                <th class="px-6 py-4 text-left">Referência</th>
+                <th class="px-6 py-4 text-left">Status</th>
+                <th class="px-6 py-4 text-left">Pagamento</th>
+                <th class="px-6 py-4 text-left">Ação</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+            {% for m in mensalidades %}
+            <tr class="hover:bg-gray-50 transition">
+                <td class="px-6 py-4 font-medium text-gray-800">{{ m.cliente.nome }}</td>
+                <td class="px-6 py-4 text-gray-800 font-bold">R$ {{ m.valor }}</td>
+                <td class="px-6 py-4 text-gray-600">{{ m.mes_referencia|date:"m/Y" }}</td>
+                <td class="px-6 py-4">
+                    <span class="px-3 py-1 rounded-full text-xs font-medium
+                        {% if m.status == 'pago' %}bg-green-100 text-green-700
+                        {% elif m.status == 'atrasado' %}bg-red-100 text-red-700
+                        {% else %}bg-yellow-100 text-yellow-700{% endif %}">
+                        {{ m.get_status_display }}
+                    </span>
+                </td>
+                <td class="px-6 py-4 text-gray-600">
+                    {{ m.data_pagamento|date:"d/m/Y"|default:"—" }}
+                </td>
+                <td class="px-6 py-4">
+                    {% if m.status != 'pago' %}
+                    <form method="post" action="{% url 'registrar_pagamento' m.pk %}">
+                        {% csrf_token %}
+                        <button type="submit" class="bg-green-500 text-white text-xs font-bold px-4 py-2 rounded-lg hover:bg-green-600 transition">
+                            ✓ Marcar Pago
+                        </button>
+                    </form>
+                    {% else %}
+                    <span class="text-green-500 text-xs font-medium">✓ Pago</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" class="px-6 py-8 text-center text-gray-400">Nenhuma mensalidade cadastrada.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

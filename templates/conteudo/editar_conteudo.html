@@ -1,0 +1,71 @@
+{% extends 'base/base.html' %}
+{% block title %}Editar Conteúdo - Primordial{% endblock %}
+{% block page_title %}Editar Conteúdo{% endblock %}
+
+{% block content %}
+
+<div class="max-w-2xl mx-auto bg-white rounded-xl shadow p-8">
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div class="md:col-span-2">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Título *</label>
+                <input type="text" name="titulo" value="{{ conteudo.titulo }}" required
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Formato *</label>
+                <select name="formato" required
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400">
+                    <option value="post" {% if conteudo.formato == 'post' %}selected{% endif %}>Post</option>
+                    <option value="reels" {% if conteudo.formato == 'reels' %}selected{% endif %}>Reels</option>
+                    <option value="stories" {% if conteudo.formato == 'stories' %}selected{% endif %}>Stories</option>
+                    <option value="carrossel" {% if conteudo.formato == 'carrossel' %}selected{% endif %}>Carrossel</option>
+                    <option value="video" {% if conteudo.formato == 'video' %}selected{% endif %}>Vídeo</option>
+                    <option value="artigo" {% if conteudo.formato == 'artigo' %}selected{% endif %}>Artigo</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                <select name="status"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400">
+                    <option value="ideia" {% if conteudo.status == 'ideia' %}selected{% endif %}>Ideia</option>
+                    <option value="producao" {% if conteudo.status == 'producao' %}selected{% endif %}>Em Produção</option>
+                    <option value="revisao" {% if conteudo.status == 'revisao' %}selected{% endif %}>Em Revisão</option>
+                    <option value="aprovado" {% if conteudo.status == 'aprovado' %}selected{% endif %}>Aprovado</option>
+                    <option value="publicado" {% if conteudo.status == 'publicado' %}selected{% endif %}>Publicado</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Data de Publicação</label>
+                <input type="datetime-local" name="data_publicacao"
+                    value="{{ conteudo.data_publicacao|date:'Y-m-d\TH:i' }}"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400">
+            </div>
+        </div>
+
+        <div class="mb-6">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Legenda</label>
+            <textarea name="legenda" rows="4"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400">{{ conteudo.legenda }}</textarea>
+        </div>
+
+        <div class="mb-6">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Observações</label>
+            <textarea name="observacoes" rows="2"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400">{{ conteudo.observacoes }}</textarea>
+        </div>
+
+        <div class="flex gap-3">
+            <button type="submit" class="bg-yellow-400 text-gray-900 font-bold px-6 py-3 rounded-lg hover:bg-yellow-500 transition">
+                Salvar Alterações
+            </button>
+            <a href="{% url 'detalhe_conteudo' conteudo.pk %}" class="bg-gray-100 text-gray-700 font-medium px-6 py-3 rounded-lg hover:bg-gray-200 transition">
+                Cancelar
+            </a>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

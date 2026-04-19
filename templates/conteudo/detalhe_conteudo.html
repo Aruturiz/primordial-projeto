@@ -1,0 +1,89 @@
+{% extends 'base/base.html' %}
+{% block title %}{{ conteudo.titulo }} - Primordial{% endblock %}
+{% block page_title %}{{ conteudo.titulo }}{% endblock %}
+
+{% block content %}
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+    <!-- Dados do conteúdo -->
+    <div class="lg:col-span-1">
+        <div class="bg-white rounded-xl shadow p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-800">Detalhes</h3>
+                <a href="{% url 'editar_conteudo' conteudo.pk %}" class="text-yellow-500 hover:text-yellow-700 text-sm font-medium">Editar</a>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <p class="text-xs text-gray-400 uppercase">Cliente</p>
+                    <p class="text-gray-800 font-medium">{{ conteudo.cliente.nome }}</p>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-400 uppercase">Rede Social</p>
+                    <p class="text-gray-800">{{ conteudo.rede_social|default:"—" }}</p>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-400 uppercase">Formato</p>
+                    <span class="px-3 py-1 rounded-full text-xs font-medium
+                        {% if conteudo.formato == 'reels' %}bg-pink-100 text-pink-700
+                        {% elif conteudo.formato == 'post' %}bg-blue-100 text-blue-700
+                        {% elif conteudo.formato == 'stories' %}bg-purple-100 text-purple-700
+                        {% elif conteudo.formato == 'carrossel' %}bg-orange-100 text-orange-700
+                        {% else %}bg-gray-100 text-gray-700{% endif %}">
+                        {{ conteudo.get_formato_display }}
+                    </span>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-400 uppercase">Status</p>
+                    <span class="px-3 py-1 rounded-full text-xs font-medium
+                        {% if conteudo.status == 'publicado' %}bg-green-100 text-green-700
+                        {% elif conteudo.status == 'aprovado' %}bg-blue-100 text-blue-700
+                        {% elif conteudo.status == 'revisao' %}bg-yellow-100 text-yellow-700
+                        {% elif conteudo.status == 'producao' %}bg-orange-100 text-orange-700
+                        {% else %}bg-gray-100 text-gray-700{% endif %}">
+                        {{ conteudo.get_status_display }}
+                    </span>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-400 uppercase">Responsável</p>
+                    <p class="text-gray-800">{{ conteudo.responsavel|default:"—" }}</p>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-400 uppercase">Data de Publicação</p>
+                    <p class="text-gray-800">{{ conteudo.data_publicacao|date:"d/m/Y H:i"|default:"—" }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Legenda e Observações -->
+    <div class="lg:col-span-2 space-y-6">
+        <div class="bg-white rounded-xl shadow p-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Legenda</h3>
+            {% if conteudo.legenda %}
+            <p class="text-gray-700 whitespace-pre-line">{{ conteudo.legenda }}</p>
+            {% else %}
+            <p class="text-gray-400 text-sm">Nenhuma legenda cadastrada.</p>
+            {% endif %}
+        </div>
+
+        {% if conteudo.observacoes %}
+        <div class="bg-white rounded-xl shadow p-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Observações</h3>
+            <p class="text-gray-700 whitespace-pre-line">{{ conteudo.observacoes }}</p>
+        </div>
+        {% endif %}
+
+        <div class="flex gap-3">
+            <a href="{% url 'editar_conteudo' conteudo.pk %}" class="bg-yellow-400 text-gray-900 font-bold px-6 py-3 rounded-lg hover:bg-yellow-500 transition">
+                Editar Conteúdo
+            </a>
+            <a href="{% url 'lista_conteudos' %}" class="bg-gray-100 text-gray-700 font-medium px-6 py-3 rounded-lg hover:bg-gray-200 transition">
+                ← Voltar
+            </a>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}
