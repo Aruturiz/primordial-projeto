@@ -4,54 +4,146 @@
 
 {% block content %}
 
-<div class="max-w-2xl mx-auto bg-white rounded-xl shadow p-8">
+<div class="max-w-3xl mx-auto bg-white rounded-xl shadow p-8">
+
     <form method="post">
         {% csrf_token %}
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Nome *</label>
-                <input type="text" name="nome" required
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400">
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Empresa</label>
-                <input type="text" name="empresa"
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400">
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Email *</label>
-                <input type="email" name="email" required
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400">
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Telefone</label>
-                <input type="text" name="telefone"
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400">
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
-                <select name="status"
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400">
-                    <option value="lead">Lead</option>
-                    <option value="prospecto">Prospecto</option>
-                    <option value="ativo">Ativo</option>
-                    <option value="inativo">Inativo</option>
-                </select>
+
+        <!-- Dados Básicos -->
+        <div class="mb-8">
+            <h3 class="text-lg font-semibold mb-4 pb-2 border-b" style="color:#1a1a1a; border-color:#dedede">
+                <i class="fas fa-user mr-2" style="color:#00bf63"></i>Dados Básicos
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium mb-2" style="color:#1a1a1a">Nome *</label>
+                    <input type="text" name="nome" required
+                        class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2" style="border-color:#dedede; focus:ring-color:#00bf63">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2" style="color:#1a1a1a">Empresa</label>
+                    <input type="text" name="empresa"
+                        class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2" style="border-color:#dedede">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2" style="color:#1a1a1a">Email *</label>
+                    <input type="email" name="email" required
+                        class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2" style="border-color:#dedede">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2" style="color:#1a1a1a">Telefone</label>
+                    <input type="text" name="telefone"
+                        class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2" style="border-color:#dedede">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2" style="color:#1a1a1a">Status</label>
+                    <select name="status"
+                        class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2" style="border-color:#dedede">
+                        <option value="lead">Lead</option>
+                        <option value="prospecto">Prospecto</option>
+                        <option value="ativo">Ativo</option>
+                        <option value="inativo">Inativo</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2" style="color:#1a1a1a">Segmento</label>
+                    <select name="segmento"
+                        class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2" style="border-color:#dedede">
+                        <option value="">Selecione...</option>
+                        <option value="moda">Moda e Beleza</option>
+                        <option value="saude">Saúde e Bem-estar</option>
+                        <option value="alimentacao">Alimentação</option>
+                        <option value="tecnologia">Tecnologia</option>
+                        <option value="educacao">Educação</option>
+                        <option value="imobiliario">Imobiliário</option>
+                        <option value="varejo">Varejo</option>
+                        <option value="servicos">Serviços</option>
+                        <option value="outro">Outro</option>
+                    </select>
+                </div>
             </div>
         </div>
 
-        <div class="mb-6">
-            <label class="block text-sm font-medium text-gray-700 mb-2">Observações</label>
-            <textarea name="observacoes" rows="4"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400"></textarea>
+        <!-- Dados Pessoais -->
+        <div class="mb-8">
+            <h3 class="text-lg font-semibold mb-4 pb-2 border-b" style="color:#1a1a1a; border-color:#dedede">
+                <i class="fas fa-id-card mr-2" style="color:#00bf63"></i>Dados Pessoais
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium mb-2" style="color:#1a1a1a">CPF/CNPJ</label>
+                    <input type="text" name="cpf_cnpj"
+                        class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2" style="border-color:#dedede">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2" style="color:#1a1a1a">Data de Nascimento</label>
+                    <input type="date" name="data_nascimento"
+                        class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2" style="border-color:#dedede">
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium mb-2" style="color:#1a1a1a">Endereço</label>
+                    <input type="text" name="endereco"
+                        class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2" style="border-color:#dedede">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2" style="color:#1a1a1a">Cidade</label>
+                    <input type="text" name="cidade"
+                        class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2" style="border-color:#dedede">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2" style="color:#1a1a1a">Estado</label>
+                    <input type="text" name="estado" maxlength="2" placeholder="Ex: SP"
+                        class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2" style="border-color:#dedede">
+                </div>
+            </div>
+        </div>
+
+        <!-- Redes Sociais -->
+        <div class="mb-8">
+            <h3 class="text-lg font-semibold mb-4 pb-2 border-b" style="color:#1a1a1a; border-color:#dedede">
+                <i class="fas fa-share-alt mr-2" style="color:#00bf63"></i>Redes Sociais
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium mb-2" style="color:#1a1a1a">Instagram</label>
+                    <input type="text" name="instagram" placeholder="@usuario"
+                        class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2" style="border-color:#dedede">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2" style="color:#1a1a1a">Facebook</label>
+                    <input type="text" name="facebook"
+                        class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2" style="border-color:#dedede">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2" style="color:#1a1a1a">LinkedIn</label>
+                    <input type="text" name="linkedin"
+                        class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2" style="border-color:#dedede">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2" style="color:#1a1a1a">TikTok</label>
+                    <input type="text" name="tiktok" placeholder="@usuario"
+                        class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2" style="border-color:#dedede">
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium mb-2" style="color:#1a1a1a">Site</label>
+                    <input type="url" name="site" placeholder="https://"
+                        class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2" style="border-color:#dedede">
+                </div>
+            </div>
+        </div>
+
+        <!-- Observações -->
+        <div class="mb-8">
+            <label class="block text-sm font-medium mb-2" style="color:#1a1a1a">Observações</label>
+            <textarea name="observacoes" rows="3"
+                class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2" style="border-color:#dedede"></textarea>
         </div>
 
         <div class="flex gap-3">
-            <button type="submit" class="bg-yellow-400 text-gray-900 font-bold px-6 py-3 rounded-lg hover:bg-yellow-500 transition">
-                Salvar Cliente
+            <button type="submit" class="font-bold px-6 py-3 rounded-lg transition" style="background-color:#00bf63; color:#1a1a1a">
+                Salvar e ir para Briefing →
             </button>
-            <a href="{% url 'lista_clientes' %}" class="bg-gray-100 text-gray-700 font-medium px-6 py-3 rounded-lg hover:bg-gray-200 transition">
+            <a href="{% url 'lista_clientes' %}" class="font-medium px-6 py-3 rounded-lg transition" style="background-color:#dedede; color:#1a1a1a">
                 Cancelar
             </a>
         </div>

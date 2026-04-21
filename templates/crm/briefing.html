@@ -1,0 +1,199 @@
+{% extends 'base/base.html' %}
+{% block title %}Briefing - {{ cliente.nome }}{% endblock %}
+{% block page_title %}Briefing — {{ cliente.nome }}{% endblock %}
+
+{% block content %}
+
+<!-- Progresso -->
+<div class="bg-white rounded-xl shadow p-4 mb-6">
+    <div class="flex items-center justify-between mb-2">
+        <p class="text-sm font-medium" style="color:#1a1a1a">Progresso do Briefing</p>
+        <p class="text-sm font-bold" style="color:#00bf63" id="progresso-texto">0%</p>
+    </div>
+    <div class="w-full rounded-full h-2" style="background-color:#dedede">
+        <div id="progresso-barra" class="h-2 rounded-full transition-all duration-500" style="background-color:#00bf63; width:0%"></div>
+    </div>
+</div>
+
+<div class="max-w-3xl mx-auto">
+    <form method="post" id="briefing-form">
+        {% csrf_token %}
+
+        <!-- Seção 1 — Sobre o Negócio -->
+        <div class="bg-white rounded-xl shadow p-8 mb-6">
+            <h3 class="text-lg font-semibold mb-6 pb-2 border-b" style="color:#1a1a1a; border-color:#dedede">
+                <i class="fas fa-building mr-2" style="color:#00bf63"></i>Sobre o Negócio
+            </h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium mb-2" style="color:#1a1a1a">Descreva o negócio do cliente</label>
+                    <textarea name="descricao_negocio" rows="3" class="briefing-field w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2" style="border-color:#dedede" placeholder="O que a empresa faz, como funciona...">{{ briefing.descricao_negocio }}</textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2" style="color:#1a1a1a">Há quanto tempo está no mercado?</label>
+                    <input type="text" name="tempo_mercado" value="{{ briefing.tempo_mercado }}" class="briefing-field w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2" style="border-color:#dedede" placeholder="Ex: 3 anos">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2" style="color:#1a1a1a">Quais são os diferenciais?</label>
+                    <textarea name="diferenciais" rows="3" class="briefing-field w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2" style="border-color:#dedede" placeholder="O que torna esse negócio único...">{{ briefing.diferenciais }}</textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2" style="color:#1a1a1a">Principais produtos/serviços</label>
+                    <textarea name="produtos_servicos" rows="3" class="briefing-field w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2" style="border-color:#dedede" placeholder="Liste os principais produtos ou serviços...">{{ briefing.produtos_servicos }}</textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2" style="color:#1a1a1a">Ticket médio</label>
+                    <input type="text" name="ticket_medio" value="{{ briefing.ticket_medio }}" class="briefing-field w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2" style="border-color:#dedede" placeholder="Ex: R$ 200,00">
+                </div>
+            </div>
+        </div>
+
+        <!-- Seção 2 — Público-alvo -->
+        <div class="bg-white rounded-xl shadow p-8 mb-6">
+            <h3 class="text-lg font-semibold mb-6 pb-2 border-b" style="color:#1a1a1a; border-color:#dedede">
+                <i class="fas fa-users mr-2" style="color:#00bf63"></i>Público-alvo
+            </h3>
+            <div class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-2" style="color:#1a1a1a">Faixa etária</label>
+                        <input type="text" name="publico_idade" value="{{ briefing.publico_idade }}" class="briefing-field w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2" style="border-color:#dedede" placeholder="Ex: 25 a 40 anos">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2" style="color:#1a1a1a">Gênero predominante</label>
+                        <select name="publico_genero" class="briefing-field w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2" style="border-color:#dedede">
+                            <option value="">Selecione...</option>
+                            <option value="masculino" {% if briefing.publico_genero == 'masculino' %}selected{% endif %}>Masculino</option>
+                            <option value="feminino" {% if briefing.publico_genero == 'feminino' %}selected{% endif %}>Feminino</option>
+                            <option value="ambos" {% if briefing.publico_genero == 'ambos' %}selected{% endif %}>Ambos</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2" style="color:#1a1a1a">Localização do público</label>
+                    <input type="text" name="publico_localizacao" value="{{ briefing.publico_localizacao }}" class="briefing-field w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2" style="border-color:#dedede" placeholder="Ex: São Paulo, Brasil">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2" style="color:#1a1a1a">Interesses do público</label>
+                    <textarea name="publico_interesses" rows="3" class="briefing-field w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2" style="border-color:#dedede" placeholder="O que seu público gosta, consome, segue...">{{ briefing.publico_interesses }}</textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2" style="color:#1a1a1a">Dores e problemas do público</label>
+                    <textarea name="publico_dores" rows="3" class="briefing-field w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2" style="border-color:#dedede" placeholder="Quais problemas seu negócio resolve...">{{ briefing.publico_dores }}</textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seção 3 — Objetivos -->
+        <div class="bg-white rounded-xl shadow p-8 mb-6">
+            <h3 class="text-lg font-semibold mb-6 pb-2 border-b" style="color:#1a1a1a; border-color:#dedede">
+                <i class="fas fa-bullseye mr-2" style="color:#00bf63"></i>Objetivos e Metas
+            </h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium mb-2" style="color:#1a1a1a">Objetivo principal com o marketing</label>
+                    <textarea name="objetivo_principal" rows="3" class="briefing-field w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2" style="border-color:#dedede" placeholder="O que espera alcançar...">{{ briefing.objetivo_principal }}</textarea>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-2" style="color:#1a1a1a">Meta de seguidores</label>
+                        <input type="text" name="meta_seguidores" value="{{ briefing.meta_seguidores }}" class="briefing-field w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2" style="border-color:#dedede" placeholder="Ex: 10k em 6 meses">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2" style="color:#1a1a1a">Meta de faturamento</label>
+                        <input type="text" name="meta_faturamento" value="{{ briefing.meta_faturamento }}" class="briefing-field w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2" style="border-color:#dedede" placeholder="Ex: R$ 50k/mês">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seção 4 — Concorrentes e Referências -->
+        <div class="bg-white rounded-xl shadow p-8 mb-6">
+            <h3 class="text-lg font-semibold mb-6 pb-2 border-b" style="color:#1a1a1a; border-color:#dedede">
+                <i class="fas fa-search mr-2" style="color:#00bf63"></i>Concorrentes e Referências
+            </h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium mb-2" style="color:#1a1a1a">Principais concorrentes</label>
+                    <textarea name="concorrentes" rows="3" class="briefing-field w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2" style="border-color:#dedede" placeholder="Liste os concorrentes diretos...">{{ briefing.concorrentes }}</textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2" style="color:#1a1a1a">Referências visuais e de conteúdo</label>
+                    <textarea name="referencias_visuais" rows="3" class="briefing-field w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2" style="border-color:#dedede" placeholder="Perfis, marcas ou estilos que admira...">{{ briefing.referencias_visuais }}</textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seção 5 — Tom e Estilo -->
+        <div class="bg-white rounded-xl shadow p-8 mb-6">
+            <h3 class="text-lg font-semibold mb-6 pb-2 border-b" style="color:#1a1a1a; border-color:#dedede">
+                <i class="fas fa-palette mr-2" style="color:#00bf63"></i>Tom e Estilo
+            </h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium mb-2" style="color:#1a1a1a">Tom de comunicação</label>
+                    <input type="text" name="tom_comunicacao" value="{{ briefing.tom_comunicacao }}" class="briefing-field w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2" style="border-color:#dedede" placeholder="Ex: Descontraído, profissional, jovem...">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2" style="color:#1a1a1a">Cores da marca</label>
+                    <input type="text" name="cores_marca" value="{{ briefing.cores_marca }}" class="briefing-field w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2" style="border-color:#dedede" placeholder="Ex: Azul #0066CC, Branco...">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2" style="color:#1a1a1a">O que deve ser evitado</label>
+                    <textarea name="evitar" rows="3" class="briefing-field w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2" style="border-color:#dedede" placeholder="Temas, estilos ou abordagens que não combinam...">{{ briefing.evitar }}</textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seção 6 — Histórico -->
+        <div class="bg-white rounded-xl shadow p-8 mb-6">
+            <h3 class="text-lg font-semibold mb-6 pb-2 border-b" style="color:#1a1a1a; border-color:#dedede">
+                <i class="fas fa-history mr-2" style="color:#00bf63"></i>Histórico de Marketing
+            </h3>
+            <div class="space-y-4">
+                <div class="flex items-center gap-3">
+                    <input type="checkbox" name="ja_fez_marketing" id="ja_fez_marketing" {% if briefing.ja_fez_marketing %}checked{% endif %} class="w-4 h-4" style="accent-color:#00bf63">
+                    <label for="ja_fez_marketing" class="text-sm font-medium" style="color:#1a1a1a">Já fez marketing digital anteriormente</label>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2" style="color:#1a1a1a">O que funcionou</label>
+                    <textarea name="o_que_funcionou" rows="3" class="briefing-field w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2" style="border-color:#dedede" placeholder="Estratégias e ações que trouxeram resultado...">{{ briefing.o_que_funcionou }}</textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2" style="color:#1a1a1a">O que não funcionou</label>
+                    <textarea name="o_que_nao_funcionou" rows="3" class="briefing-field w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2" style="border-color:#dedede" placeholder="O que foi testado e não teve resultado...">{{ briefing.o_que_nao_funcionou }}</textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex gap-3">
+            <button type="submit" class="font-bold px-6 py-3 rounded-lg transition" style="background-color:#00bf63; color:#1a1a1a">
+                <i class="fas fa-save mr-2"></i>Salvar Briefing
+            </button>
+            <a href="{% url 'detalhe_cliente' cliente.pk %}" class="font-medium px-6 py-3 rounded-lg transition" style="background-color:#dedede; color:#1a1a1a">
+                Cancelar
+            </a>
+        </div>
+    </form>
+</div>
+
+<script>
+    function calcularProgresso() {
+        const campos = document.querySelectorAll('.briefing-field');
+        let preenchidos = 0;
+        campos.forEach(campo => {
+            if (campo.value.trim() !== '') preenchidos++;
+        });
+        const porcentagem = Math.round((preenchidos / campos.length) * 100);
+        document.getElementById('progresso-barra').style.width = porcentagem + '%';
+        document.getElementById('progresso-texto').textContent = porcentagem + '%';
+    }
+
+    document.querySelectorAll('.briefing-field').forEach(campo => {
+        campo.addEventListener('input', calcularProgresso);
+    });
+
+    calcularProgresso();
+</script>
+
+{% endblock %}

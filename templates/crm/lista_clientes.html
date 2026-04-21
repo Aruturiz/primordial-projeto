@@ -6,56 +6,80 @@
 
 {% if messages %}
     {% for message in messages %}
-    <div class="bg-green-100 text-green-700 px-4 py-3 rounded-lg mb-4">{{ message }}</div>
+    <div class="px-4 py-3 rounded-lg mb-4 text-white" style="background-color:#00bf63">{{ message }}</div>
     {% endfor %}
 {% endif %}
 
 <div class="flex justify-between items-center mb-6">
-    <p class="text-gray-500">{{ clientes.count }} cliente(s) cadastrado(s)</p>
-    <a href="{% url 'novo_cliente' %}" class="bg-yellow-400 text-gray-900 font-bold px-5 py-2 rounded-lg hover:bg-yellow-500 transition">
+    <p class="text-sm" style="color:#1a1a1a">{{ clientes.count }} cliente(s) cadastrado(s)</p>
+    <a href="{% url 'novo_cliente' %}" class="font-bold px-5 py-2 rounded-lg transition text-sm" style="background-color:#00bf63; color:#1a1a1a">
         + Novo Cliente
     </a>
 </div>
 
-<div class="bg-white rounded-xl shadow overflow-hidden">
-    <table class="w-full text-sm">
-        <thead class="bg-gray-50 text-gray-600 uppercase text-xs">
-            <tr>
-                <th class="px-6 py-4 text-left">Nome</th>
-                <th class="px-6 py-4 text-left">Empresa</th>
-                <th class="px-6 py-4 text-left">Email</th>
-                <th class="px-6 py-4 text-left">Telefone</th>
-                <th class="px-6 py-4 text-left">Status</th>
-                <th class="px-6 py-4 text-left">Ações</th>
-            </tr>
-        </thead>
-        <tbody class="divide-y divide-gray-100">
-            {% for cliente in clientes %}
-            <tr class="hover:bg-gray-50 transition">
-                <td class="px-6 py-4 font-medium text-gray-800">{{ cliente.nome }}</td>
-                <td class="px-6 py-4 text-gray-600">{{ cliente.empresa }}</td>
-                <td class="px-6 py-4 text-gray-600">{{ cliente.email }}</td>
-                <td class="px-6 py-4 text-gray-600">{{ cliente.telefone }}</td>
-                <td class="px-6 py-4">
-                    <span class="px-3 py-1 rounded-full text-xs font-medium
-                        {% if cliente.status == 'ativo' %}bg-green-100 text-green-700
-                        {% elif cliente.status == 'lead' %}bg-yellow-100 text-yellow-700
-                        {% elif cliente.status == 'prospecto' %}bg-blue-100 text-blue-700
-                        {% else %}bg-gray-100 text-gray-700{% endif %}">
-                        {{ cliente.get_status_display }}
-                    </span>
-                </td>
-                <td class="px-6 py-4">
-                    <a href="{% url 'detalhe_cliente' cliente.pk %}" class="text-yellow-500 hover:text-yellow-700 font-medium">Ver</a>
-                </td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="6" class="px-6 py-8 text-center text-gray-400">Nenhum cliente cadastrado ainda.</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<!-- Cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {% for cliente in clientes %}
+    <a href="{% url 'detalhe_cliente' cliente.pk %}" class="bg-white rounded-xl shadow hover:shadow-md transition block p-6">
+        <div class="flex items-center gap-4 mb-4">
+            <div class="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg flex-shrink-0" style="background-color:#1a1a1a">
+                {{ cliente.nome|first|upper }}
+            </div>
+            <div>
+                <p class="font-semibold" style="color:#1a1a1a">{{ cliente.nome }}</p>
+                <p class="text-sm text-gray-500">{{ cliente.empresa|default:"—" }}</p>
+            </div>
+        </div>
+
+        <div class="space-y-2 mb-4">
+            {% if cliente.email %}
+            <p class="text-xs text-gray-500 flex items-center gap-2">
+                <i class="fas fa-envelope" style="color:#00bf63"></i> {{ cliente.email }}
+            </p>
+            {% endif %}
+            {% if cliente.telefone %}
+            <p class="text-xs text-gray-500 flex items-center gap-2">
+                <i class="fas fa-phone" style="color:#00bf63"></i> {{ cliente.telefone }}
+            </p>
+            {% endif %}
+            {% if cliente.segmento %}
+            <p class="text-xs text-gray-500 flex items-center gap-2">
+                <i class="fas fa-tag" style="color:#00bf63"></i> {{ cliente.get_segmento_display }}
+            </p>
+            {% endif %}
+        </div>
+
+        <div class="flex items-center justify-between">
+            <span class="px-3 py-1 rounded-full text-xs font-medium
+                {% if cliente.status == 'ativo' %}bg-green-100 text-green-700
+                {% elif cliente.status == 'lead' %}bg-yellow-100 text-yellow-700
+                {% elif cliente.status == 'prospecto' %}bg-blue-100 text-blue-700
+                {% else %}bg-gray-100 text-gray-700{% endif %}">
+                {{ cliente.get_status_display }}
+            </span>
+            {% if cliente.briefing_completo %}
+            <span class="text-xs font-medium" style="color:#00bf63">
+                <i class="fas fa-check-circle mr-1"></i>Briefing OK
+            </span>
+            {% else %}
+            <span class="text-xs text-gray-400">
+                <i class="fas fa-clock mr-1"></i>Briefing pendente
+            </span>
+            {% endif %}
+        </div>
+    </a>
+    {% empty %}
+    <div class="col-span-3 bg-white rounded-xl shadow p-12 text-center">
+        <div class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style="background-color:#dedede">
+            <i class="fas fa-users text-2xl" style="color:#1a1a1a"></i>
+        </div>
+        <h3 class="text-lg font-semibold mb-2" style="color:#1a1a1a">Nenhum cliente cadastrado</h3>
+        <p class="text-gray-500 mb-6">Adicione seu primeiro cliente para começar.</p>
+        <a href="{% url 'novo_cliente' %}" class="font-bold px-6 py-3 rounded-lg transition" style="background-color:#00bf63; color:#1a1a1a">
+            + Novo Cliente
+        </a>
+    </div>
+    {% endfor %}
 </div>
 
 {% endblock %}
