@@ -1,0 +1,173 @@
+{% extends 'base/base.html' %}
+{% block title %}30 em 1 - Primordial{% endblock %}
+{% block page_title %}Método 30 em 1{% endblock %}
+
+{% block content %}
+
+{% if messages %}
+    {% for message in messages %}
+    <div class="px-4 py-3 rounded-lg mb-4 text-white" style="background-color:#00bf63">{{ message }}</div>
+    {% endfor %}
+{% endif %}
+
+<!-- Header info -->
+<div class="bg-white rounded-xl shadow p-6 mb-6">
+    <div class="flex items-center justify-between">
+        <div>
+            <h3 class="font-semibold text-lg" style="color:#1a1a1a">
+                <i class="fas fa-calendar-check mr-2" style="color:#00bf63"></i>
+                Planejamento {{ mes_atual|date:"F/Y" }}
+            </h3>
+            <p class="text-sm text-gray-500 mt-1">Gerencie o 30 em 1 dos clientes Ouro</p>
+        </div>
+        <button onclick="document.getElementById('modal-novo').classList.remove('hidden')"
+            class="font-bold px-5 py-2 rounded-lg transition text-sm" style="background-color:#00bf63; color:#1a1a1a">
+            + Adicionar Cliente
+        </button>
+    </div>
+</div>
+
+<!-- Cards dos clientes Ouro -->
+{% if clientes_ouro %}
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+    {% for cliente in clientes_ouro %}
+    {% with registro=None %}
+    {% for r in registros %}
+        {% if r.cliente.pk == cliente.pk %}
+        <!-- Com registro -->
+        <div class="bg-white rounded-xl shadow p-6">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-white" style="background-color:#1a1a1a">
+                    {{ cliente.nome|first|upper }}
+                </div>
+                <div>
+                    <p class="font-semibold" style="color:#1a1a1a">{{ cliente.nome }}</p>
+                    <span class="text-xs px-2 py-1 rounded-full font-medium" style="background-color:#e6fff3; color:#00bf63">⭐ Ouro</span>
+                </div>
+            </div>
+
+            <div class="space-y-2 mb-4">
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-500">Status</span>
+                    <span class="font-medium px-2 py-1 rounded-full text-xs
+                        {% if r.status == 'finalizado' %}bg-green-100 text-green-700
+                        {% elif r.status == 'em_desenvolvimento' %}bg-blue-100 text-blue-700
+                        {% elif r.status == 'reuniao_agendada' %}bg-yellow-100 text-yellow-700
+                        {% else %}bg-gray-100 text-gray-600{% endif %}">
+                        {{ r.get_status_display }}
+                    </span>
+                </div>
+                {% if r.data_reuniao %}
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-500">Reunião</span>
+                    <span class="font-medium" style="color:#1a1a1a">{{ r.data_reuniao|date:"d/m/Y H:i" }}</span>
+                </div>
+                {% endif %}
+                {% if r.estrategia %}
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-500">Estratégia</span>
+                    <a href="{% url 'chat_estrategia' r.estrategia.pk %}" class="font-medium" style="color:#00bf63">Ver →</a>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Atualizar status -->
+            <form method="post" action="{% url 'atualizar_30em1' r.pk %}">
+                {% csrf_token %}
+                <select name="status" onchange="this.form.submit()"
+                    class="w-full px-3 py-2 border rounded-lg text-sm focus:outline-none" style="border-color:#dedede">
+                    <option value="pendente" {% if r.status == 'pendente' %}selected{% endif %}>Pendente</option>
+                    <option value="reuniao_agendada" {% if r.status == 'reuniao_agendada' %}selected{% endif %}>Reunião Agendada</option>
+                    <option value="em_desenvolvimento" {% if r.status == 'em_desenvolvimento' %}selected{% endif %}>Em Desenvolvimento</option>
+                    <option value="finalizado" {% if r.status == 'finalizado' %}selected{% endif %}>Finalizado</option>
+                </select>
+            </form>
+
+            <a href="{% url 'nova_estrategia' %}?cliente={{ cliente.pk }}&tipo=30_em_1"
+                class="mt-3 block text-center text-sm font-bold px-4 py-2 rounded-lg transition" style="background-color:#1a1a1a; color:#00bf63">
+                <i class="fas fa-robot mr-1"></i> Gerar com IA
+            </a>
+        </div>
+        {% endif %}
+    {% endfor %}
+
+    <!-- Sem registro -->
+    {% if not registros %}
+    <div class="bg-white rounded-xl shadow p-6 border-2 border-dashed" style="border-color:#dedede">
+        <div class="flex items-center gap-3 mb-4">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-white" style="background-color:#1a1a1a">
+                {{ cliente.nome|first|upper }}
+            </div>
+            <div>
+                <p class="font-semibold" style="color:#1a1a1a">{{ cliente.nome }}</p>
+                <span class="text-xs px-2 py-1 rounded-full font-medium" style="background-color:#e6fff3; color:#00bf63">⭐ Ouro</span>
+            </div>
+        </div>
+        <p class="text-sm text-gray-400 mb-4">30 em 1 não iniciado para este mês.</p>
+        <form method="post" action="{% url 'criar_30em1' %}">
+            {% csrf_token %}
+            <input type="hidden" name="cliente" value="{{ cliente.pk }}">
+            <input type="hidden" name="mes_referencia" value="{{ mes_atual|date:'Y-m-d' }}">
+            <button type="submit" class="w-full font-bold px-4 py-2 rounded-lg transition text-sm" style="background-color:#00bf63; color:#1a1a1a">
+                + Iniciar 30 em 1
+            </button>
+        </form>
+    </div>
+    {% endif %}
+    {% endwith %}
+    {% endfor %}
+</div>
+{% else %}
+<div class="bg-white rounded-xl shadow p-12 text-center">
+    <div class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style="background-color:#e6fff3">
+        <i class="fas fa-star text-2xl" style="color:#00bf63"></i>
+    </div>
+    <h3 class="text-lg font-semibold mb-2" style="color:#1a1a1a">Nenhum cliente Ouro cadastrado</h3>
+    <p class="text-gray-500 mb-6">Acesse o CRM e defina clientes como Ouro para usar esta funcionalidade.</p>
+    <a href="{% url 'lista_clientes' %}" class="font-bold px-6 py-3 rounded-lg transition" style="background-color:#00bf63; color:#1a1a1a">
+        Ir para o CRM
+    </a>
+</div>
+{% endif %}
+
+<!-- Modal novo -->
+<div id="modal-novo" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-xl shadow-xl p-8 w-full max-w-md">
+        <h3 class="font-semibold text-lg mb-4" style="color:#1a1a1a">Adicionar 30 em 1</h3>
+        <form method="post" action="{% url 'criar_30em1' %}">
+            {% csrf_token %}
+            <div class="space-y-4 mb-6">
+                <div>
+                    <label class="block text-sm font-medium mb-2" style="color:#1a1a1a">Cliente</label>
+                    <select name="cliente" required class="w-full px-4 py-3 border rounded-lg focus:outline-none" style="border-color:#dedede">
+                        <option value="">Selecione...</option>
+                        {% for cliente in clientes_ouro %}
+                        <option value="{{ cliente.pk }}">{{ cliente.nome }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2" style="color:#1a1a1a">Mês de Referência</label>
+                    <input type="date" name="mes_referencia" required
+                        class="w-full px-4 py-3 border rounded-lg focus:outline-none" style="border-color:#dedede">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2" style="color:#1a1a1a">Data da Reunião</label>
+                    <input type="datetime-local" name="data_reuniao"
+                        class="w-full px-4 py-3 border rounded-lg focus:outline-none" style="border-color:#dedede">
+                </div>
+            </div>
+            <div class="flex gap-3">
+                <button type="submit" class="flex-1 font-bold px-6 py-3 rounded-lg transition" style="background-color:#00bf63; color:#1a1a1a">
+                    Salvar
+                </button>
+                <button type="button" onclick="document.getElementById('modal-novo').classList.add('hidden')"
+                    class="flex-1 font-medium px-6 py-3 rounded-lg transition" style="background-color:#dedede; color:#1a1a1a">
+                    Cancelar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

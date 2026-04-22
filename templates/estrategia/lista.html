@@ -6,15 +6,71 @@
 
 {% if messages %}
     {% for message in messages %}
-    <div class="bg-green-100 text-green-700 px-4 py-3 rounded-lg mb-4">{{ message }}</div>
+    <div class="px-4 py-3 rounded-lg mb-4 text-white" style="background-color:#00bf63">{{ message }}</div>
     {% endfor %}
 {% endif %}
 
+<!-- Alertas da semana -->
+{% if alertas_estrategia %}
+<div class="rounded-xl p-4 mb-6 border-l-4" style="background-color:#fff8e6; border-color:#f59e0b">
+    <div class="flex items-center gap-2 mb-3">
+        <i class="fas fa-exclamation-triangle" style="color:#f59e0b"></i>
+        <p class="font-semibold" style="color:#1a1a1a">⚠️ Semana 3 — Estratégias Pendentes!</p>
+    </div>
+    <p class="text-sm text-gray-600 mb-3">Os seguintes clientes ainda não têm estratégia para este mês:</p>
+    <div class="flex flex-wrap gap-2">
+        {% for cliente in alertas_estrategia %}
+        <a href="{% url 'nova_estrategia' %}?cliente={{ cliente.pk }}" class="px-3 py-1 rounded-full text-sm font-medium text-white" style="background-color:#f59e0b">
+            {{ cliente.nome }} →
+        </a>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+{% if alertas_30em1 %}
+<div class="rounded-xl p-4 mb-6 border-l-4" style="background-color:#e6fff3; border-color:#00bf63">
+    <div class="flex items-center gap-2 mb-3">
+        <i class="fas fa-star" style="color:#00bf63"></i>
+        <p class="font-semibold" style="color:#1a1a1a">⭐ Semana 4 — 30 em 1 Pendente para Clientes Ouro!</p>
+    </div>
+    <p class="text-sm text-gray-600 mb-3">Os seguintes clientes Ouro ainda não têm o 30 em 1 deste mês:</p>
+    <div class="flex flex-wrap gap-2">
+        {% for cliente in alertas_30em1 %}
+        <a href="{% url 'lista_30em1' %}" class="px-3 py-1 rounded-full text-sm font-medium text-white" style="background-color:#00bf63">
+            {{ cliente.nome }} →
+        </a>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Semana atual -->
+<div class="bg-white rounded-xl shadow p-4 mb-6 flex items-center gap-3">
+    <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-white" style="background-color:#1a1a1a">
+        {{ semana_atual }}
+    </div>
+    <div>
+        <p class="font-semibold" style="color:#1a1a1a">Semana {{ semana_atual }} do mês</p>
+        <p class="text-xs text-gray-500">
+            {% if semana_atual == 1 %}Produção de conteúdo
+            {% elif semana_atual == 2 %}Revisão e aprovação
+            {% elif semana_atual == 3 %}⚠️ Período de estratégia — verifique clientes pendentes
+            {% else %}⭐ Reuniões com clientes Ouro + desenvolvimento 30 em 1{% endif %}
+        </p>
+    </div>
+</div>
+
 <div class="flex justify-between items-center mb-6">
-    <p class="text-gray-500">{{ estrategias.count }} estratégia(s) criada(s)</p>
-    <a href="{% url 'nova_estrategia' %}" class="bg-yellow-400 text-gray-900 font-bold px-5 py-2 rounded-lg hover:bg-yellow-500 transition">
-        + Nova Estratégia
-    </a>
+    <p class="text-sm text-gray-500">{{ estrategias.count }} estratégia(s) criada(s)</p>
+    <div class="flex gap-3">
+        <a href="{% url 'lista_30em1' %}" class="font-bold px-5 py-2 rounded-lg transition text-sm" style="background-color:#1a1a1a; color:#00bf63">
+            <i class="fas fa-calendar-check mr-2"></i>30 em 1
+        </a>
+        <a href="{% url 'nova_estrategia' %}" class="font-bold px-5 py-2 rounded-lg transition text-sm" style="background-color:#00bf63; color:#1a1a1a">
+            + Nova Estratégia
+        </a>
+    </div>
 </div>
 
 {% if estrategias %}
@@ -26,7 +82,8 @@
                 {% if e.tipo == 'redes_sociais' %}bg-pink-100 text-pink-700
                 {% elif e.tipo == 'conteudo' %}bg-blue-100 text-blue-700
                 {% elif e.tipo == 'roteiro' %}bg-purple-100 text-purple-700
-                {% else %}bg-yellow-100 text-yellow-700{% endif %}">
+                {% elif e.tipo == '30_em_1' %}bg-yellow-100 text-yellow-700
+                {% else %}bg-gray-100 text-gray-700{% endif %}">
                 {{ e.get_tipo_display }}
             </span>
             <span class="px-3 py-1 rounded-full text-xs font-medium
@@ -35,17 +92,20 @@
                 {{ e.get_status_display }}
             </span>
         </div>
-        <h3 class="font-semibold text-gray-800 mb-1">{{ e.titulo }}</h3>
+        <h3 class="font-semibold mb-1" style="color:#1a1a1a">{{ e.titulo }}</h3>
         {% if e.cliente %}
-        <p class="text-sm text-gray-500 mb-3">{{ e.cliente.nome }}</p>
+        <p class="text-sm text-gray-500 mb-1">{{ e.cliente.nome }}</p>
+        {% endif %}
+        {% if e.mes_referencia %}
+        <p class="text-xs text-gray-400 mb-3">Ref: {{ e.mes_referencia|date:"m/Y" }}</p>
         {% endif %}
         <p class="text-xs text-gray-400 mb-4">{{ e.criado_em|date:"d/m/Y H:i" }}</p>
         <div class="flex gap-2">
-            <a href="{% url 'chat_estrategia' e.pk %}" class="flex-1 bg-yellow-400 text-gray-900 text-sm font-bold px-4 py-2 rounded-lg hover:bg-yellow-500 transition text-center">
+            <a href="{% url 'chat_estrategia' e.pk %}" class="flex-1 text-sm font-bold px-4 py-2 rounded-lg transition text-center" style="background-color:#00bf63; color:#1a1a1a">
                 <i class="fas fa-comments mr-1"></i> Chat
             </a>
             {% if e.status == 'finalizada' %}
-            <a href="{% url 'detalhe_estrategia' e.pk %}" class="flex-1 bg-gray-100 text-gray-700 text-sm font-bold px-4 py-2 rounded-lg hover:bg-gray-200 transition text-center">
+            <a href="{% url 'detalhe_estrategia' e.pk %}" class="flex-1 text-sm font-bold px-4 py-2 rounded-lg transition text-center" style="background-color:#1a1a1a; color:#00bf63">
                 <i class="fas fa-file-alt mr-1"></i> Ver Doc
             </a>
             {% endif %}
@@ -55,12 +115,12 @@
 </div>
 {% else %}
 <div class="bg-white rounded-xl shadow p-12 text-center">
-    <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
-        <i class="fas fa-robot text-yellow-500 text-2xl"></i>
+    <div class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style="background-color:#e6fff3">
+        <i class="fas fa-robot text-2xl" style="color:#00bf63"></i>
     </div>
-    <h3 class="text-lg font-semibold text-gray-800 mb-2">Nenhuma estratégia criada</h3>
-    <p class="text-gray-500 mb-6">Converse com a IA para desenvolver estratégias incríveis para seus clientes.</p>
-    <a href="{% url 'nova_estrategia' %}" class="bg-yellow-400 text-gray-900 font-bold px-6 py-3 rounded-lg hover:bg-yellow-500 transition">
+    <h3 class="text-lg font-semibold mb-2" style="color:#1a1a1a">Nenhuma estratégia criada</h3>
+    <p class="text-gray-500 mb-6">Converse com a IA para desenvolver estratégias incríveis.</p>
+    <a href="{% url 'nova_estrategia' %}" class="font-bold px-6 py-3 rounded-lg transition" style="background-color:#00bf63; color:#1a1a1a">
         + Nova Estratégia
     </a>
 </div>
